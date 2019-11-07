@@ -20,61 +20,77 @@
 //  [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
 //  [ 8, 7, 3, 5, 1, 2, 9, 6, 4 ]
 //  ]) ➞ true
-bool checkRowForRepetitions(List<List<int>> board, int row) {
-  return board[row].toSet().length==9;
- }
-
-
-bool checkForColumnRepetitions(List<List<int>> board, int col) {
-List<int> tempList = [];
-  for (int i = 0; i < 9; i++) {
-    tempList.add(board[i][col]);
+bool sudokuValidator(List<List<int>>board){
+  if(board.isEmpty){ //check for empty board
+    return false;
   }
-   return tempList.toSet().length==9;
-}
-
-bool checkForBoxRepetitions(List<List<int>> board, int row, int col) {
-// Set to store characters seen so far.
-  List<int> st = [];
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
-      int curr = board[i + row][j + col];
-      if (st.contains(curr)) {
-        return false;
-      } else {
-        st.add(curr);
-      }
-    }
+  if(!(board.length==9)) //check if 9 rows are present
+      {return false;}
+  for(int i=0;i<9;i++){
+    if(!(board[i].length==9)) //check if 9 columns are present
+        {return false;}
   }
-  return true;
-}
-
-bool isValid(List<List<int>> board, int row, int col) {
-  bool flag=true;
-  if(row%3==0 && col%3==0){ // reduces the number of times check for box is performed. Now its performed only 9 times
-    flag=checkForBoxRepetitions(board,row,col);
-  }
-  return checkRowForRepetitions(board, row) &&
-      checkForColumnRepetitions(board, col) && flag;
-
-
-}
-
-bool sudokuValidator(List<List<int>> board) {
-  int n = 9;
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      if(board[i][j]<1 || board[i][j]>9){ //check for correct range
-        return false;
-      }
-      if (!isValid(board, i, j)) {
+  //check if every number in the board is in the range 1 to 9
+  for(int i=0;i<9;i++){
+    for(int j=0;j<9;j++){
+      if(board[i][j]<1 || board[i][j]>9){
         return false;
       }
     }
   }
-  return true;
+
+  //check for rows
+  for(int i=0;i<9;i++){
+    for(int j=1;j<10;j++){
+      if(!board[i].contains(j)){
+        print('row error');
+        return false;
+      }
+    }
+  }
+  //check for columns
+  List<int> tempList=[];
+  for(int j=0;j<9;j++){
+    for(int i=0;i<9;i++){
+      tempList.add(board[i][j]);
+    }//tempList created
+    for(int index=1;index<10;index++){
+      if(!tempList.contains(index)){
+        print("column error");
+        return false;
+      }
+    }//templist checked
+  }
+  //check for 3X3 boards
+  //check for first 3X3
+  if( boardCheck(0,0,board,1) &&
+      boardCheck(0,3,board,2) &&
+      boardCheck(0,6,board,3) &&
+      boardCheck(3,0,board,4) &&
+      boardCheck(3,3,board,5) &&
+      boardCheck(3,6,board,6) &&
+      boardCheck(6,0,board,7) &&
+      boardCheck(6,3,board,8) &&
+      boardCheck(6,6,board,9) )
+  {return true;}
+  else{return false;}
 }
 
+bool boardCheck(int row, int col,List<List<int>>board, int boardIndex){
+  List<int> tempList=[];
+  for(int i=row;i<row+3;i++){
+    for(int j=col;j<col+3;j++){
+      tempList.add(board[i][j]);
+    }
+  }
+  for (int index = 1; index < 10; index++)  {
+    if (!tempList.contains(index)) {
+      print(" $boardIndex board error");
+      return false;
+    }
+  }
+  return true;
+}
 // Challenge 3
 // Sort by Factor Length
 // A numbers factor length is simply its total number of factors.
@@ -84,51 +100,58 @@ bool sudokuValidator(List<List<int>> board) {
 // In the example below, since 13 and 7 both have only 2 factors, we put 13 ahead of 7.
 //
 // factorSort([9, 7, 13, 12]) ➞ [12, 9, 13, 7]
-
-// Sort an array of numbers according
-// to number of factors.
-
-List factorSort(List<int> numbers) {
-  numbers.sort(comparator);
-  return numbers;
+List<int> factorSort(List<int>inputList){
+  //check for negative numbers
+  for(int i=0;i<inputList.length;i++){
+    if(inputList[i]<0){
+      return [];
+    }
+  }
+  for(int i=0;i<inputList.length-1;i++){
+    for(int j=i+1;j<inputList.length;j++){
+      if(factorLength(inputList[i])<factorLength(inputList[j])){
+        //swap
+        int temp=inputList[i];
+        inputList[i]=inputList[j];
+        inputList[j]=temp;
+      }
+      else if(factorLength(inputList[i])==factorLength(inputList[j]))
+      {
+        if(inputList[i]<inputList[j]){
+          int temp=inputList[i];
+          inputList[i]=inputList[j];
+          inputList[j]=temp;
+        }
+      }
+    }
+  }
+  return inputList;
 }
-
-int comparator(int a, int b) {
-  int aFactorCount = 0;
-  int bFactorCount = 0;
-  for (int i = 1; i < a; i++) {
-    if (a % i == 0) {
-      aFactorCount++;
+int factorLength(int number){
+  List<int> factorList=[];
+  for(int i=1;i<=number;i++){
+    if(number%i==0){
+      factorList.add(i);
     }
   }
-  for (int i = 1; i < b; i++) {
-    if (b % i == 0) {
-      bFactorCount++;
-    }
-  }
-  if (aFactorCount < bFactorCount) return 1;
-  if (aFactorCount > bFactorCount) return -1;
-  if (aFactorCount == bFactorCount) {
-    if (a < b) return 1;
-    if (a == b) return 0;
-    if (a > b) return -1;
-  }
+  // print("Printin factors of $number");
+  // print(factorList);
+  return factorList.length;
 }
 
 
 main() {
-
-  print (sudokuValidator([
-    [ 1, 5, 2, 4, 8, 9, 3, 7, 6 ],
-    [ 7, 3, 9, 2, 5, 6, 8, 4, 1 ],
-    [ 4, 6, 8, 3, 7, 1, 2, 9, 5 ],
-    [ 3, 8, 7, 1, 2, 4, 6, 5, 9 ],
-    [ 5, 9, 1, 7, 6, 3, 4, 2, 8 ],
-    [ 2, 4, 6, 8, 9, 5, 7, 1, 3 ],
-    [ 9, 1, 4, 6, 3, 7, 5, 8, 2 ],
-    [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
-    [ 8, 7, 3, 5, 1, 2, 9, 6, 4 ]
-  ]));
+  print(sudokuValidator(
+      [
+        [ 1, 5, 2, 4, 8, 9, 3, 7, 6 ],
+        [ 7, 3, 9, 2, 5, 6, 8, 4, 1 ],
+        [ 4, 6, 8, 3, 7, 1, 2, 9, 5 ],
+        [ 3, 8, 7, 1, 2, 4, 6, 5, 9 ],
+        [ 5, 9, 1, 7, 6, 3, 4, 2, 8 ],
+        [ 2, 4, 6, 8, 9, 5, 7, 1, 3 ],
+        [ 9, 1, 4, 6, 3, 7, 5, 8, 2 ],
+        [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
+        [ 8, 7, 3, 5, 1, 2, 9, 6, 4 ]
+      ]));
   print(factorSort([9, 7, 13, 12]));
-
 }
