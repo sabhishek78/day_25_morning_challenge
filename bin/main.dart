@@ -20,26 +20,38 @@
 //  [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
 //  [ 8, 7, 3, 5, 1, 2, 9, 6, 4 ]
 //  ]) ➞ true
-bool sudokuValidator(List<List<int>>board){
-  if(board.isEmpty){ //check for empty board
-    return false;
-  }
+bool emptyBoard(List<List<int>>board){
+  return(board.isNotEmpty);
+}
+
+bool checkBoardLengthIs9(List<List<int>>board){
   if(!(board.length==9)) //check if 9 rows are present
-      {return false;}
-  for(int i=0;i<9;i++){
-    if(!(board[i].length==9)) //check if 9 columns are present
-        {return false;}
+      {
+        return false;
+      }
+  else {
+    for (int i = 0; i < 9; i++) {
+      if (!(board[i].length == 9)) //check if 9 columns are present
+          {
+        return false;
+      }
+    }
   }
-  //check if every number in the board is in the range 1 to 9
+  
+    return true;
+  
+}
+bool checkBoardRange(List<List<int>>board){
   for(int i=0;i<9;i++){
     for(int j=0;j<9;j++){
       if(board[i][j]<1 || board[i][j]>9){
         return false;
       }
     }
+    return true;
   }
-
-  //check for rows
+}
+bool checkForRows(List<List<int>>board){
   for(int i=0;i<9;i++){
     for(int j=1;j<10;j++){
       if(!board[i].contains(j)){
@@ -48,7 +60,9 @@ bool sudokuValidator(List<List<int>>board){
       }
     }
   }
-  //check for columns
+  return true;
+}
+bool checkForColumns(List<List<int>>board){
   List<int> tempList=[];
   for(int j=0;j<9;j++){
     for(int i=0;i<9;i++){
@@ -59,24 +73,11 @@ bool sudokuValidator(List<List<int>>board){
         print("column error");
         return false;
       }
-    }//templist checked
+    }
   }
-  //check for 3X3 boards
-  //check for first 3X3
-  if( boardCheck(0,0,board,1) &&
-      boardCheck(0,3,board,2) &&
-      boardCheck(0,6,board,3) &&
-      boardCheck(3,0,board,4) &&
-      boardCheck(3,3,board,5) &&
-      boardCheck(3,6,board,6) &&
-      boardCheck(6,0,board,7) &&
-      boardCheck(6,3,board,8) &&
-      boardCheck(6,6,board,9) )
-  {return true;}
-  else{return false;}
+  return true;
 }
-
-bool boardCheck(int row, int col,List<List<int>>board, int boardIndex){
+bool subBoardCheck(int row, int col,List<List<int>>board, int boardIndex){
   List<int> tempList=[];
   for(int i=row;i<row+3;i++){
     for(int j=col;j<col+3;j++){
@@ -91,6 +92,30 @@ bool boardCheck(int row, int col,List<List<int>>board, int boardIndex){
   }
   return true;
 }
+
+bool everySubBoardCheck(List<List<int>>board){
+  int boardIndex=1;
+  bool flag=true;
+ for(int i=0;i<9;i=i+3){
+   for(int j=0;j<9;j=j+3){
+     flag=flag&&subBoardCheck(i, j, board, boardIndex);
+     boardIndex++;
+   }
+ }
+ return flag;
+}
+bool sudokuValidator(List<List<int>>board){
+
+  return(  everySubBoardCheck(board)&&
+      emptyBoard(board)       &&
+      checkBoardLengthIs9(board) &&
+      checkBoardRange(board)  &&
+      checkForColumns(board)  &&
+      checkForRows(board)) ;
+
+}
+
+
 // Challenge 3
 // Sort by Factor Length
 // A numbers factor length is simply its total number of factors.
