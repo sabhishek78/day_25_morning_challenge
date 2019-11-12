@@ -35,46 +35,91 @@ checkList(List<List<int>> board, int i) {
   return !(board[i].toSet().length!=9);
 }
 
-bool notInRow(List<List<int>> board, int row) {
-  return checkList(board, row);
-}
+bool checkRowValidity(List<List<int>> board) {
 
-bool notInCol(List<List<int>> board, int col) {
-  List transposed = transposeMatrix(board);
-  return checkList(board, col);
-}
-
-bool notInBox(List<List<int>> board, int row, int col) {
-
-  List<int> st = [];
-  for(int i=0;i<9;i=i+3){
-    for(int j=0;j<9;j=j+3){
-        int curr=board[i][j];
-        if (st.contains(curr)) {
-          return false;
-        } else {
-          st.add(curr);
-          print(st);
-        }
-    }
-  }
-}
-
-bool isValid(List<List<int>> board, int row, int col) {
-  return notInRow(board, row) &&
-      notInCol(board, col);
-}
-
-bool sudokuValidator(List<List<int>> board) {
-  int n = 9;
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      if (!isValid(board, i, j) && notInBox(board, i, j)) {
+    for(int i=0;i<9;i++){
+      if (!(board[i].toSet().length==9)){// As soon as an invalid row is found it returns false
+      // print("duplicate element in row");
         return false;
       }
     }
+  //  print("All Rows are valid");
+    return true;
+}
+
+bool checkColValidity(List<List<int>> board) {
+ //print("Checking for Columns...");
+  List transposed = transposeMatrix(board);
+  return checkRowValidity(board);
+}
+
+bool checkAllBoxesValidity(List<List<int>> board) {
+ // print("Checking for Box Validity....");
+
+  for(int row=0;row<9;row=row+3){
+    for(int column=0;column<9;column=column+3){
+      checkEachBox(board,row,column);
+
+    }
   }
+ // print(" All boxed are valid");
   return true;
+}
+checkEachBox(board,row,column){
+  List<int> tempList = [];
+  for(int i=row;i<row+3;i++){
+    tempList=[];
+    for(int j=column;j<column+3;j++){
+      int curr=board[i][j];
+      if (tempList.contains(curr)) {
+      //  print("invalid Box");
+        return false;
+      } else {
+        tempList.add(curr);
+      }
+    }
+  }
+
+}
+
+
+bool checkRangeValidity(List<List<int>>board){
+  for(int i=0;i<9;i++){
+    for(int j=0;j<9;j++){
+      if(board[i][j]<1 || board[i][j]>9)
+        {
+         // print("Board Range is InValid");
+          return false;
+        }
+    }
+  }
+ // print("Board Range is Valid");
+  return true;
+}
+bool checkBoardSizeValidity(List<List<int>> board){
+  if(!(board.length==9)){
+   // print("Invalid Board Size");
+    return false;
+  }
+  else{
+    for(int i=0;i<9;i++){
+      if(board[i].length!=9)
+      {
+       // print("Board Size is InValid");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  }
+
+bool sudokuValidator(List<List<int>> board) {
+        if(checkBoardSizeValidity(board)){ return (checkRangeValidity(board)
+            && checkRowValidity(board) && checkColValidity(board) && checkAllBoxesValidity(board)) ;}
+        else {return false;}
+
+
 }
 
 // Challenge 3
@@ -131,6 +176,49 @@ main() {
     [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
     [ 8, 7, 3, 5, 1, 2, 9, 6, 4 ]
   ]));
-  print(factorSort([9, 7, 13, 12]));
+  print (sudokuValidator([
+    [ 7, 5, 2, 4, 8, 9, 3, 7, 6 ], // 1st element changed
+    [ 7, 3, 9, 2, 5, 6, 8, 4, 1 ],
+    [ 4, 6, 8, 3, 7, 1, 2, 9, 5 ],
+    [ 3, 8, 7, 1, 2, 4, 6, 5, 9 ],
+    [ 5, 9, 1, 7, 6, 3, 4, 2, 8 ],
+    [ 2, 4, 6, 8, 9, 5, 7, 1, 3 ],
+    [ 9, 1, 4, 6, 3, 7, 5, 8, 2 ],
+    [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
+    [ 8, 7, 3, 5, 1, 2, 9, 6, 4 ]
+  ]));
+  print (sudokuValidator([
+    [ 1, 5, 2, 4, 8, 9, 3, 7, 6,10 ],// range error
+    [ 7, 3, 9, 2, 5, 6, 8, 4, 1 ],
+    [ 4, 6, 8, 3, 7, 1, 2, 9, 5 ],
+    [ 3, 8, 7, 1, 2, 4, 6, 5, 9 ],
+    [ 5, 9, 1, 7, 6, 3, 4, 2, 8 ],
+    [ 2, 4, 6, 8, 9, 5, 7, 1, 3 ],
+    [ 9, 1, 4, 6, 3, 7, 5, 8, 2 ],
+    [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
+    [ 8, 7, 3, 5, 1, 2, 9, 6, 4 ]
+  ]));
+  print (sudokuValidator([
+    [ 1, 5, 2, 4, 8, 9, 3, 7, 6 ],// range error
+    [ 7, 3, 9, 2, 5, 6, 8, 4, 1 ],
+    [ 4, 6, 8, 3, 7, 1, 2, 9, 5 ],
+    [ 3, 8, 7, 1, 2, 4, 6, 5, 9 ],
+    [ 5, 9, 1, -7, 6, 3, 4, 2, 8 ],
+    [ 2, 4, 6, 8, 9, 5, 7, 1, 3 ],
+    [ 9, 1, 4, 6, 3, 7, 5, 8, 2 ],
+    [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
+    [ 8, 7, 3, 5, 1, 2, 9, 6, 4 ]
+  ]));
+  print (sudokuValidator([
+    [ 1, 5, 2, 4, 8, 9, 3, 7, 6 ],
+    [ 7, 3, 9, 2, 5, 6, 8, 4, 1 ],
+    [ 4, 6, 8, 3, 7, 1, 2, 9, 5 ],
+    [ 3, 8, 7, 1, 2, 4, 6, 5, 9 ],
+    [ 5, 9, 1, 7, 6, 3, 4, 2, 8 ],
+    [ 2, 4, 6, 8, 9, 5, 7, 1, 3 ],
+    [ 9, 1, 4, 6, 3, 7, 5, 8, 2 ],
+    [ 6, 2, 5, 9, 4, 8, 1, 3, 7 ],
+    [ 8, 7, 3, 5, 1, 2, 9, 6 ]
+  ]));
 
 }
