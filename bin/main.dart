@@ -36,17 +36,13 @@ checkList(List<List<int>> board, int i) {
 }
 
 bool checkRowValidity(List<List<int>> board) {
+ if(board.any((List<int> row)=>containsDuplicateElements(row))){return false;}
+   else{
+   return true;
+ }
 
-    for(int i=0;i<9;i++){
-      if (!(board[i].toSet().length==9)){// As soon as an invalid row is found it returns false
-      // print("duplicate element in row");
-        return false;
-      }
-    }
-  //  print("All Rows are valid");
-    return true;
 }
-
+bool containsDuplicateElements(List<int>elements)=>elements.toSet().length!=elements.length;
 bool checkColValidity(List<List<int>> board) {
  //print("Checking for Columns...");
   List transposed = transposeMatrix(board);
@@ -84,35 +80,11 @@ checkEachBox(board,row,column){
 
 
 bool checkRangeValidity(List<List<int>>board){
-  for(int i=0;i<9;i++){
-    for(int j=0;j<9;j++){
-      if(board[i][j]<1 || board[i][j]>9)
-        {
-         // print("Board Range is InValid");
-          return false;
-        }
-    }
-  }
- // print("Board Range is Valid");
-  return true;
+  return board.expand((row)=>row).toSet().every((number)=>number >0 && number<=board.length);
 }
 bool checkBoardSizeValidity(List<List<int>> board){
-  if(!(board.length==9)){
-   // print("Invalid Board Size");
-    return false;
-  }
-  else{
-    for(int i=0;i<9;i++){
-      if(board[i].length!=9)
-      {
-       // print("Board Size is InValid");
-        return false;
-      }
-    }
-    return true;
-  }
-
-  }
+  return board.every((row)=>row.length % 3 == 0 && row.length == board.length);
+}
 
 bool sudokuValidator(List<List<int>> board) {
         if(checkBoardSizeValidity(board)){ return (checkRangeValidity(board)
