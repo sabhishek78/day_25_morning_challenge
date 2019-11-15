@@ -64,19 +64,14 @@ bool checkAllBoxesValidity(List<List<int>> board) {
 checkEachBox(board,row,column){
   List<int> tempList = [];
   for(int i=row;i<row+3;i++){
-    tempList=[];
     for(int j=column;j<column+3;j++){
-      int curr=board[i][j];
-      if (tempList.contains(curr)) {
-      //  print("invalid Box");
-        return false;
-      } else {
-        tempList.add(curr);
-      }
+     tempList.add(board[i][j]);
     }
   }
+  return containsDuplicateElements(tempList);
 
 }
+
 
 
 bool checkRangeValidity(List<List<int>>board){
